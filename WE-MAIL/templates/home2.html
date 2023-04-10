@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>WeMail</title>
+	<style>
+		body {
+		  margin: 0;
+		  padding: 0;
+		  background-color: #333333; /* darkish shade of gray */
+		} 
+		#header {
+		  background-color: #fff;
+		  height: 60px;
+		  border-bottom: 1px solid #ccc;
+		  display: flex;
+		  align-items: center;
+		  justify-content: flex-start;
+		  padding: 0 20px;
+		}
+		
+		#logo {
+		  font-size: 24px;
+		  font-weight: bold;
+		  margin-right: 20px;
+		}
+		
+		#mic {
+		  display: flex;
+		  align-items: center;
+		  justify-content: center;
+		  height: calc(100vh - 60px);
+		  position: relative;
+		}
+		
+		#mic img {
+		  width: 100px;
+		}
+		
+		#mic:active {
+		  background-color: #ccc;
+		}
+		
+		#mic span {
+		  position: absolute;
+		  bottom: 210px;
+		  margin-top: 10px; 
+		  left: 50%;
+		  transform: translateX(-50%);
+		  font-size: 14px;
+		  color: #fff;
+		  font-family: Arial, Helvetica, sans-serif;
+		}
+		#status {
+		margin-top: 50px;
+		font-size: 1.5em;
+		font-weight: bold;
+	  }
+  
+	  #speech {
+		font-size: 1.5em;
+		margin-top: 20px;
+	  }
+	</style>
+</head>
+<body>
+	<div id="header">
+	  <div id="logo">WeMail</div>
+	</div>
+	<div id="mic">
+		<a href="/start-program"><img src="{{url_for('static' , filename='r6rek93io5ie5do603vkqvk919.png')}}" alt="microphone" width="128" height="128"></a>
+	  <span>Click anywhere to start</span>
+	</div>
+  </body>
+</html>
