@@ -36,10 +36,13 @@ def speech_to_text():
             return MyText
 
     except sr.RequestError as e:
+        SpeakText("Could not request results")
+        SpeakText(e)
         print("Could not request results; {0}".format(e))
         return None
 
     except sr.UnknownValueError:
+        SpeakText("unknown error occured")
         print("unknown error occured")
         return None
 
@@ -60,36 +63,45 @@ def sendMail(sendTo, msg):
     for person in sendTo:
         mail.sendmail(EMAIL_ID, person, msg)  # send part
         print("Mail sent successfully to " + person)
+        SpeakText("Mail Sent")
     mail.close()
 
-
 def composeMail():
-    SpeakText(
-        "Mention the gmail ID of the persons to whom you want to send a mail. Email IDs should be separated with the "
-        "word, AND.")
-    receivers = ""
-    while True:
-        SpeakText("Say the next letter.")
-        letter = speech_to_text().strip().lower()
-        if letter == " ":
-            continue
-        elif letter == "and":
-            break
-        else:
-            receivers += letter
-    receivers = receivers.replace("at the rate", "@")
-    emails = receivers.split(" and ")
-    index = 0
-    for email in emails:
-        emails[index] = email.replace(" ", "")
-        index += 1
+    SpeakText("Enter the email IDs of the persons to whom you want to send a mail, separated by 'and': ")
+    receivers = speech_to_text()
+    receivers = receivers.capitalize()
+
+    email_dict = {
+        "Rahul": "rahul.jestadi@gmail.com",
+        "Matthew": "leojmatt02@gmail.com",
+        "Brinda": "brindadh12@gmail.com",
+        "Neha": "neharb8@gmail.com"
+        "Shashank": "sha"
+    }
+    if receivers in email_dict:
+        receivers = email_dict[receivers]
+        emails = receivers.split(" and ")
+        index = 0
+        for email in emails:
+            emails[index] = email.replace(" ", "")
+            index += 1
+    else:
+        SpeakText(f"Email ID of {receivers} not found. Please mention the email ID.")
+        receiver_email = speech_to_text()
+        receiver_email = receiver_email.replace("at the rate", "@")
+        emails = receivers.split(" and ")
+        index = 0
+        for email in emails:
+            emails[index] = email.replace(" ", "")
+            index += 1
 
     SpeakText("The mail will be send to " +
               (' and '.join([str(elem) for elem in emails])) + ". Confirm by saying YES or NO.")
     confirmMailList = speech_to_text()
 
-    if confirmMailList.lower() != "yes":
+    if confirmMailList != "yes":
         SpeakText("Operation cancelled by the user")
+        print("Operation cancelled by the user")
         return None
 
     msg = EmailMessage()
@@ -106,8 +118,8 @@ def composeMail():
     if attach_file.lower() == "yes":
         SpeakText("Please say the name of the file you want to attach")
         filename = speech_to_text()
-        file_path = f"{os.getcwd()}\\{filename}"
-        if not os.path.isfile(file_path):
+        file_path = "/Users/rahuljestadi/Desktop/PROJECTS/WE-MAIL/"+filename
+        if not file_path:
             SpeakText(f"{filename} not found in the current directory. Please try again.")
             return None
 
@@ -119,13 +131,15 @@ def composeMail():
 
     SpeakText("You said  " + body_text + ". Confirm by saying YES or NO.")
     confirmMailBody = speech_to_text()
-    if confirmMailBody.lower() == "yes":
+    if confirmMailBody== "yes":
         SpeakText("Message sent")
-        sendMail(msg)
+        msg_str = msg.as_string()
+        msg_bytes = msg_str.encode('utf-8')
+        sendMail(emails,msg_bytes)
     else:
-        SpeakText("Operation cancelled by the user")
+        SpeakText("Operation cancelled by user")
+        print("Operation cancelled by the user")
         return None
-
 
 
 def getMailBoxStatus():
@@ -338,9 +352,9 @@ def searchMail():
     M.select(mailBoxTarget)
 
     SpeakText(
-        "Say 1 to search mails from a specific sender. Say 2 to search mail with respect to the subject of the mail.")
+        "Say sender to search mails from a specific sender. Say subject to search mail with respect to the subject of the mail.")
     mailSearchChoice = speech_to_text()
-    if mailSearchChoice == "1" or mailSearchChoice.lower() == "one" or mailSearchChoice.lower() == "sender" or mailSearchChoice.lower() == "by sender" or mailSearchChoice.lower() == "sendor":
+    if mailSearchChoice == "sender" or mailSearchChoice.lower() == "sender mail" or mailSearchChoice.lower() == "email" or mailSearchChoice.lower() == "by sender" or mailSearchChoice.lower() == "sendor":
         SpeakText("Please mention the sender email ID you want to search.")
         searchSub = speech_to_text()
         searchSub = searchSub.replace("at the rate", "@")
@@ -497,7 +511,7 @@ def reply_to_mail(sender=None, subject=None):
     M.login(EMAIL_ID, PASSWORD)
 
     M.select("INBOX")
-    search_criteria = []
+    search_criteria = ['ALL']
     if sender:
         search_criteria.append(f'FROM "{sender}"')
     if subject:
@@ -532,7 +546,7 @@ def reply_to_mail(sender=None, subject=None):
     reply_message["Subject"] = f"Re: {subject}"
     reply_message["From"] = EMAIL_ID
 
-    body_text = "Type the reply message you want to send."
+    body_text = "Say the reply message you want to send."
     SpeakText(body_text)
     reply_text = speech_to_text()
 
@@ -549,23 +563,27 @@ def reply_to_mail(sender=None, subject=None):
 def main():
     if EMAIL_ID != "" and PASSWORD != "":
 
-        SpeakText("Choose and speak out the option number for the task you want to perform. Say compose to send a "
-                  "mail. Say status to get your mailbox status. Say search to search a mail. Say recent to get the "
-                  "last 3 mails. Say reply to reply to a mail")
-        choice = speech_to_text()
-        if choice == 'compose mail' or choice == 'compose':
-            composeMail()
-        elif choice == 'status' or choice == 'mailbox status' or choice == "stat us":
-            getMailBoxStatus()
-        elif choice == 'search' or choice == 'search mail' or choice == 'mail search':
-            searchMail()
-        elif choice == 'recent' or choice == 'last' or choice == 'last three' or choice == "sent" or choice == "last 3":
-            getLatestMails()
-        elif choice == 'reply' or choice == 'reply to':
-            reply_to_mail()
+            SpeakText("Choose and speak out the option number for the task you want to perform. Say compose to send a "
+                    "mail. Say status to get your mailbox status. Say search to search a mail. Say last three to get the "
+                    "last 3 mails. Say reply to reply to a mail")
+            choice = speech_to_text()
+            if choice == 'compose mail' or choice == 'compose' or choice == 'make' or choice == 'send' or choice == 'send mail':
+                composeMail()
+            elif choice == 'status' or choice == 'mailbox status' or choice == "stat us":
+                getMailBoxStatus()
+            elif choice == 'search' or choice == 'search mail' or choice == 'mail search':
+                searchMail()
+            elif choice == 'recent' or choice == 'last' or choice == 'last three' or choice == "sent" or choice == "last 3":
+                getLatestMails()
+            elif choice == 'reply' or choice == 'reply to':
+                reply_to_mail()
+            elif choice == 'stop' or choice == 'exit':
+                SpeakText("Not doing anything")
 
-        else:
-            SpeakText("Wrong choice. Please say only the appropriate words")
+            else:
+                SpeakText("Wrong choice. Please say only the appropriate words")
+            
+            
 
     else:
         SpeakText("Both Email ID and Password should be present")
